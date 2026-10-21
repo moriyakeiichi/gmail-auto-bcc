@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Gmail Auto BCC の設定</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #ffffff;
+      --fg: #1f1f1f;
+      --muted: #5f6368;
+      --border: #c9c9c9;
+      --card-bg: #fafafa;
+      --input-bg: #ffffff;
+      --input-border: #9a9a9a;
+      --btn-bg: #f1f3f4;
+      --btn-fg: #1f1f1f;
+      --btn-border: #9a9a9a;
+      --btn-hover: #e4e6e8;
+      --primary: #1a73e8;
+      --primary-fg: #ffffff;
+      --primary-hover: #1765cc;
+      --danger: #c5221f;
+      --danger-border: #e0a4a2;
+      --success: #1a7f37;
+      --invalid-bg: #fff3f3;
+      --chip-bg: #e8f0fe;
+      --chip-fg: #174ea6;
+      --chip-border: #aecbfa;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1f1f1f;
+        --fg: #e8eaed;
+        --muted: #9aa0a6;
+        --border: #4a4a4a;
+        --card-bg: #2a2a2a;
+        --input-bg: #171717;
+        --input-border: #5f6368;
+        --btn-bg: #3c4043;
+        --btn-fg: #e8eaed;
+        --btn-border: #5f6368;
+        --btn-hover: #4a4e52;
+        --primary: #8ab4f8;
+        --primary-fg: #202124;
+        --primary-hover: #a5c4fa;
+        --danger: #f28b82;
+        --danger-border: #8a4a46;
+        --success: #81c995;
+        --invalid-bg: #3a2424;
+        --chip-bg: #263347;
+        --chip-fg: #c2d7ff;
+        --chip-border: #3d5a8a;
+      }
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: var(--bg); color: var(--fg);
+      max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; line-height: 1.6;
+    }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    h2 { font-size: 15px; margin: 24px 0 8px; }
+    .note { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
+    .note code { padding: 1px 5px; border-radius: 3px; background: var(--btn-bg); color: var(--fg); }
+    .card {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px 16px; margin-bottom: 14px;
+    }
+    .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+    .row label { white-space: nowrap; }
+    input[type="email"], input[type="text"] {
+      font-size: 14px; padding: 6px 8px; border-radius: 4px; min-width: 280px;
+      background: var(--input-bg); color: var(--fg); border: 1px solid var(--input-border);
+    }
+    input[type="email"]:focus, input[type="text"]:focus { outline: 2px solid var(--primary); outline-offset: 1px; border-color: transparent; }
+    input.invalid { border-color: var(--danger); background: var(--invalid-bg); }
+    input[type="checkbox"] { accent-color: var(--primary); }
+    .bcc-list { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; margin-top: 8px; }
+    .bcc-list span { font-size: 13px; color: var(--muted); }
+    .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .card-head strong { font-size: 14px; }
+    button {
+      font-size: 14px; padding: 6px 14px; border-radius: 6px; cursor: pointer;
+      background: var(--btn-bg); color: var(--btn-fg); border: 1px solid var(--btn-border);
+    }
+    button:hover { background: var(--btn-hover); }
+    button.primary { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); font-weight: 600; }
+    button.primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+    button.danger { background: transparent; color: var(--danger); border-color: var(--danger-border); }
+    button.danger:hover { background: var(--invalid-bg); }
+    button.small { font-size: 12px; padding: 3px 10px; }
+    .actions { display: flex; gap: 10px; align-items: center; margin-top: 16px; }
+    #status { font-size: 13px; color: var(--success); }
+    #status.error { color: var(--danger); }
+    .detected { display: flex; flex-wrap: wrap; gap: 8px; }
+    .detected button {
+      background: var(--chip-bg); color: var(--chip-fg); border: 1px solid var(--chip-border);
+      border-radius: 999px; padding: 4px 12px; font-size: 13px;
+    }
+    .detected button::before { content: "＋ "; }
+    .detected button:hover { filter: brightness(1.08); }
+    .empty { color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>Gmail Auto BCC の設定</h1>
+  <p class="note">
+    Gmail でメール作成ウィンドウを開いた瞬間に、ここで設定した BCC アドレス（送信元アドレスごとに最大5件）を自動入力します。<br>
+    すでに BCC に入っているアドレスは追加しないので、下書きを開き直しても重複しません。
+  </p>
+
+  <h2>Gmail で検出された送信元アドレス</h2>
+  <p class="note">Gmail でメールを作成すると、ログイン中のアカウントと「送信元」で使ったアドレス（別ドメインのエイリアスを含む）がここに溜まります。クリックすると下の一覧に追加できます。</p>
+  <div id="detected" class="detected"><span class="empty">まだ検出されていません。Gmail を一度開いてからこのページを再読み込みしてください。</span></div>
+
+  <h2>送信元アドレスごとの設定</h2>
+  <p class="note">
+    「送信元のメールアドレス」には、作成ウィンドウの「送信元」に表示されるアドレスを入れます。Gmail アカウント本体でも、Google Workspace などのエイリアスでも構いません。<br>
+    送信元に設定がない場合は何もしません（別のアドレスの設定が流用されることはありません）。<br>
+    <code>*</code> を入れると、個別に設定していないすべての送信元に適用されます。
+  </p>
+  <div id="list"></div>
+  <button id="add" type="button">＋ 送信元を追加</button>
+
+  <div class="actions">
+    <button id="save" class="primary" type="button">保存</button>
+    <span id="status"></span>
+  </div>
+
+  <template id="card-tpl">
+    <div class="card">
+      <div class="card-head">
+        <strong>送信元</strong>
+        <button type="button" class="danger small del">削除</button>
+      </div>
+      <div class="row">
+        <label>送信元のメールアドレス</label>
+        <input type="text" class="acct" placeholder="you@example.com または *">
+      </div>
+      <div class="row">
+        <label><input type="checkbox" class="enabled" checked> 有効</label>
+        <span>｜ 対象:</span>
+        <label><input type="checkbox" class="apply-new" checked> 新規作成</label>
+        <label><input type="checkbox" class="apply-reply" checked> 返信</label>
+        <label><input type="checkbox" class="apply-forward"> 転送</label>
+      </div>
+      <div class="bcc-list">
+        <span>BCC 1</span><input type="email" class="bcc" placeholder="bcc1@example.com">
+        <span>BCC 2</span><input type="email" class="bcc" placeholder="（任意）">
+        <span>BCC 3</span><input type="email" class="bcc" placeholder="（任意）">
+        <span>BCC 4</span><input type="email" class="bcc" placeholder="（任意）">
+        <span>BCC 5</span><input type="email" class="bcc" placeholder="（任意）">
+      </div>
+    </div>
+  </template>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Gmail Auto BCC",
+  "version": "1.0.0",
+  "description": "Gmail の作成ウィンドウを開いた瞬間に、アカウントごとに設定した BCC アドレス（最大5件）を自動で入力します。",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://mail.google.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://mail.google.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_title": "Gmail Auto BCC の設定を開く"
+  }
+}
